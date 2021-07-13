@@ -15,7 +15,7 @@
     var regPxe = /\px|pt|em|rem/g,je = {},
     jeTable = function(elem, opts) {
         var config = {
-            skin:"je-datatable",                    //默认风格
+            skin:"je-grid",                    //默认风格
             width:"100%",                             //表格标签宽度
             height:"auto",                            //表格标签宽度
             columnSort:[],                            //头部可排序的数，如[1,3,5],其中1表示第一个可排序
@@ -60,9 +60,9 @@
             fieldDiv = $('<div class="' + opts.skin + '-field"></div>'),
             maskDiv = $('<div class="' + opts.skin + '-mask"></div>');
         that.elCell.html(wrapDiv.append(theadDiv.append("<table jetableth><thead><tr></tr></thead></table>")).append(tbodyDiv.append(maskDiv).append("<table jetabletd><tbody></tbody></table>")));
-        wrapDiv.css({width:opts.width,position:"relative","overflow":"hidden"});
+        wrapDiv.css({width:(opts.width == "100%" ? "auto" : opts.width),position:"relative","overflow":"hidden"});
         tbodyDiv.after(fieldDiv.append("<h3><span>字段列表</span><em></em></h3><ul></ul>"));
-        if (opts.columnSort.length > 0) theadDiv.after("<div class='fielddrop'></div>");
+        theadDiv.after("<div class='fielddrop'></div>");
         that.setContent();
         that.showField(fieldDiv);
         pageIdxSize[pgField.pageIndex.field] = pgField.pageIndex.num;
@@ -86,8 +86,8 @@
             $.each(data,function(idx,val){
                 var tr = $("<tr row='"+idx+"'></tr>");
                 $.each(colDate,function (i,d) {
-                    var isShow = je.isBool(d.isShow);
-                    var renVal = (d.renderer != "" && d.renderer != undefined) ? d.renderer(val,idx) : val[d.field], alVal = d.align||"left", 
+                    var isShow = je.isBool(d.isShow), alVal = d.align||"left";
+                    var renVal = (d.renderer != "" && d.renderer != undefined) ? d.renderer(val,idx) : val[d.field],  
                         tdCls = $("<td class='field-"+d.field+"'><div>"+renVal+"</div></td>").addClass("dfields").attr("align",alVal).css({width:d.width});
                     tr.append(isShow ? tdCls : tdCls.hide());
                 });
@@ -117,33 +117,31 @@
                 });
             }
             //下拉按钮与字段列表的显示隐藏
-            if (opts.columnSort.length > 0) {
-                var eltheadCls = that.elCell.find("."+ opts.skin +"-thead"),
-                    fielddrop = that.elCell.find(".fielddrop");
-                eltheadCls.on("mouseenter",function(){
-                    if(fielddrop.is(":hidden")) fielddrop.slideDown('fast');
-                });
-                $("."+ opts.skin).on('mouseleave', function(){
-                    fielddrop.slideUp('fast');
-                });
-                that.elCell.find("."+ opts.skin +"-tbody").on("mouseenter",function(){
-                    if(fielddrop.is(":visible")) fielddrop.slideUp('fast');
-                });
-                //点击显示字段列表
-                fielddrop.on("click",function(){
-                    var elfieldCls = that.elCell.find("."+ opts.skin +"-field");
-                    elfieldCls.css({top:eltheadCls.outerHeight(true),bottom:that.elCell.find("."+ opts.skin +"-page").outerHeight(true)})
-                    fielddrop.hide();
-                    elfieldCls.slideDown('fast');
-                    //点击隐藏字段列表
-                    elfieldCls.find("h3 em").on("click",function(){
-                        elfieldCls.slideUp('fast');
-                    })
+            var eltheadCls = that.elCell.find("."+ opts.skin +"-thead"),
+                fielddrop = that.elCell.find(".fielddrop");
+            eltheadCls.on("mouseenter",function(){
+                if(fielddrop.is(":hidden")) fielddrop.slideDown('fast');
+            });
+            $("."+ opts.skin).on('mouseleave', function(){
+                fielddrop.slideUp('fast');
+            });
+            that.elCell.find("."+ opts.skin +"-tbody").on("mouseenter",function(){
+                if(fielddrop.is(":visible")) fielddrop.slideUp('fast');
+            });
+            //点击显示字段列表
+            fielddrop.on("click",function(){
+                var elfieldCls = that.elCell.find("."+ opts.skin +"-field");
+                elfieldCls.css({top:eltheadCls.outerHeight(true),bottom:that.elCell.find("."+ opts.skin +"-page").outerHeight(true)})
+                fielddrop.hide();
+                elfieldCls.slideDown('fast');
+                //点击隐藏字段列表
+                elfieldCls.find("h3 em").on("click",function(){
+                    elfieldCls.slideUp('fast');
                 })
-            }
+            });
             //加载成功后的回调
             if ($.isFunction(opts.success) || opts.success != "" || opts.success != null) {
-                opts.success && opts.success(tbody);
+                opts.success && opts.success(that.elCell,tbody);
             }
         };
         //拉取数据
@@ -180,8 +178,9 @@
         var tableSum = 0;
         //设置头部
         $.each(colDate,function (i,d) {
-            var isShow = je.isBool(d.isShow);
-            var althVal = d.align||"left",thCls = $("<th class='field-"+d.field+"'><div>"+d.name+"</div></th>").addClass("dfields").attr("align",althVal).css({width:d.width});
+            var isShow = je.isBool(d.isShow), nameval ,dname = d.name;
+            nameval = $.isArray(dname) ? ($.isFunction(dname[1]) ? dname[1](dname) : dname[1]) : dname;
+            var althVal = d.align||"left",thCls = $("<th class='field-"+d.field+"'><div>"+nameval+"</div></th>").addClass("dfields").attr("align",althVal).css({width:d.width});
             var col = $("<col class='cols-"+d.field+"' cols='true'>").css({width:d.width});
             //为table设置隐藏域的宽度
             $("table[jetableth]",that.elCell).append(isShow ? col : "");
@@ -258,9 +257,10 @@
             tbody = that.elCell.find("table[jetabletd]");
         //把相应的字段显示
         $.each(colDate,function (i,d) {
-            var isShow = je.isBool(d.isShow);
-            var fp = $("<li class='jetablego-"+d.field+"'><label><input name='field' field='"+d.field+"' checked type='checkbox' value='' />"+d.name+"</label></li>");
-            fieldCls.find("ul").append(isShow ? fp : fp.hide());
+            var isShow = je.isBool(d.isShow),sname = d.name, 
+                nameval = $.isArray(sname) ? sname[0] : sname;
+            var fp = $("<li class='jetablego-"+d.field+"'><label><input name='field' field='"+d.field+"' "+(isShow ? "checked" : "")+" type='checkbox' value='' /> "+nameval+"</label></li>");
+            fieldCls.find("ul").append(fp);
         });
         //点击后对相应的字段内容进行隐藏显示
         fieldCls.find("li label").on("click",function () {
@@ -286,17 +286,7 @@
     return jeTable;
 });
 
-(function(root, factory) {
-    //amd
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery" ], factory);
-    } else if (typeof exports === "object") {
-        //umd
-        module.exports = factory();
-    } else {
-        root.jePage = factory(window.$ || $);
-    }
-})(this, function($) {
+;(function($) {
     var isEven = function (num) {  // true偶数, false奇数
         return (parseInt(num)%2 == 0) ? true : false;
     }, jePage = function(elem, options) {
@@ -412,5 +402,8 @@
         this.createHtml(pageIndex);
         this.opts.jumpChange && this.opts.jumpChange(pageIndex);
     };
-    return jePage;
-});
+    var jeTablePage = function(y,m,d) {
+        return new jePage(new Date(y,m,d));
+    };
+    return jeTablePage;
+})(jQuery);

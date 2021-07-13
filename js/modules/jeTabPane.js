@@ -17,12 +17,7 @@
             skinCell:"tabpanel",                       //默认风格
             monitor: 'body',                         //监视的区域
             menuattr:"[addtab]",                     //点击标识可以是 ".addtab" 或者 "[addtab]"类型
-            firstItem:{                              //默认首页
-                tab: "index",
-                text: "首页",
-                url: "button.html",
-                closable:false
-            },
+            firstItem:{},                              //默认首页
             maxTabs:12,                              //最大显示tab标签数量, 默认最大显示12个标签
             moveSize:104,                            //每次最大移动宽度
             currCls:"active",                        //当前高亮的标识class

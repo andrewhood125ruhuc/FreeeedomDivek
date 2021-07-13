@@ -7,8 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="wcodeth=device-wcodeth, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="css/jeui.css"  media="all">
-    <script type="text/javascript" src="js/modules/jquery.min.js"></script>
-    <script type="text/javascript" src="js/modules/jeTree.js"></script>
+    <script type="text/javascript" src="js/modules/jeui.js"></script>
 </head>
 <body>
 <div class="je-p20">
@@ -20,6 +19,7 @@
     
 </div>
 <script type="text/javascript">
+jeui.use(["jquery","jeTree"],function () {
     var jsonlist = [
         {
             tid: "M001",
@@ -139,6 +139,7 @@
             console.log(item)
         }
     })
+})    
 </script>
 <!--http://www.qdfuns.com/notes/13967/3cdebc6a132f33a3e65aa2b6019a7487.html-->
 </body>
