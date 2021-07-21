@@ -19,7 +19,7 @@ BUG 是避免不了的，需要一步步完善，希望大家多多参与！
 * [官网（http://www.jemui.com/）](http://www.jemui.com/) 
 
 
-
+* [演示（http://www.jemui.com/demo/）](http://www.jemui.com/demo/) 
 
 
 
