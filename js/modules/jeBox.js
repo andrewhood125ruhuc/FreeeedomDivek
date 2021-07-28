@@ -1,11 +1,19 @@
 /**
  @Name : jeBox v1.5 弹层组件
  @Author: chen guojun
- @Date: 2017-05-26
+ @Date: 2017-06-26
  @QQ群：516754269
  @官网：http://www.jemui.com/jebox/ 或 https://github.com/singod/jeBox
  */
-;!(function(window, dcm) {
+;!(function ( window, factory ) {
+    if ( typeof define === "function" && define.amd ) {
+        define(factory);
+    } else if ( typeof module === "object" && typeof module.exports === "object" ) {
+        module.exports = factory();
+    } else {
+        window.jeBox = factory();
+    }
+})( this, function () {
     var Jeobj = {endfun : {}}, regPxe = /\px|em/g,
         ieBrowser = !-[1, ] ? parseInt(navigator.appVersion.split(";")[1].replace(/MSIE|[ ]/g, "")) : 9;
     //缓存常用字符
@@ -542,13 +550,5 @@
         $("#" + doms[0] + idx).find("iframe").attr("src", url);
     };
 
-    if (typeof exports == "object") {
-        module.exports = jeBox;
-    } else if (typeof define == "function" && define.amd) {
-        define([], function () {
-            return jeBox;
-        })
-    } else {
-        window.jeBox = jeBox;
-    }
-})(window, document);
+    return jeBox
+});
